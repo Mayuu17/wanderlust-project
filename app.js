@@ -4,15 +4,15 @@ if (process.env.NODE_ENV != "production") {
 
 const express = require("express");
 const app = express();
+const session = require("express-session");
+// Change this
+const { MongoStore } = require("connect-mongo");
 
 const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 
 const ExpressError = require("./util/ExpressError.js");
-
-const session = require("express-session");
-const MongoStore = require("connect-mongo");
 
 const flash = require("connect-flash");
 
@@ -67,16 +67,19 @@ app.locals.mapToken = process.env.GEOAPIFY_API_KEY;
 
 // ================= MONGO SESSION STORE =================
 
+// ================= MONGO SESSION STORE =================
+// ================= MONGO SESSION STORE =================
 const store = MongoStore.create({
+    mongoUrl: dbUrl,
+    crypto: {
+        secret: process.env.SECRET || "mysupersecretcode",
+    },
+    touchAfter: 24 * 3600, // 24 hours
+});
 
-  mongoUrl: dbUrl,
-
-  crypto: {
-    secret: process.env.SECRET,
-  },
-
-  touchAfter: 24 * 3600,
-
+// Agar store me koi error aaye toh use catch karne ke liye (Good practice)
+store.on("error", (err) => {
+    console.log("ERROR IN MONGO SESSION STORE", err);
 });
 
 // ================= SESSION =================
